@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <EditTextPreference
+        android:key="svn_user"
+        android:summary="请输入"
+        android:title="用户名"
+        app:iconSpaceReserved="false" />
+    <EditTextPreference
+        android:inputType="textPassword"
+        android:key="svn_password"
+        android:summary="请输入"
+        android:title="密码"
+        app:iconSpaceReserved="false" />
+
+    <Preference
+        android:key="svn_login"
+        android:title="登录"
+        app:iconSpaceReserved="false" />
+</PreferenceScreen>

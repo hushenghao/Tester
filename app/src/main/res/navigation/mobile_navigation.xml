@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_svn_config">
+
+    <fragment
+        android:id="@+id/nav_svn"
+        android:name="com.dede.tester.ui.svn.SVNFragment"
+        android:label="@string/svn"
+        tools:layout="@layout/fragment_svn">
+        <action
+            android:id="@+id/action_SVN_to_SVNConfig"
+            app:destination="@id/nav_svn_config" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_svn_config"
+        android:name="com.dede.tester.ui.svn.SVNConfigFragment"
+        android:label="@string/svn_config">
+        <action
+            android:id="@+id/action_SVNConfig_to_SVN"
+            app:destination="@id/nav_svn" />
+    </fragment>
+
+    <!--不自动登录-->
+    <fragment
+        android:id="@+id/nav_svn_config_unlogin"
+        android:name="com.dede.tester.ui.svn.SVNConfigFragment"
+        android:label="@string/svn_config">
+        <argument
+            android:name="auto_login"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/action_SVNConfig_to_SVN"
+            app:destination="@id/nav_svn" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_scan"
+        android:name="com.dede.tester.ui.scan.ScanFragment"
+        android:label="@string/menu_scan"
+        tools:layout="@layout/fragment_scan" />
+
+</navigation>
