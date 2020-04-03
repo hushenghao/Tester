@@ -2,12 +2,18 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <EditTextPreference
+        android:key="svn_url"
+        android:summary="请输入"
+        android:title="SVN路径"
+        app:iconSpaceReserved="false" />
+
+    <EditTextPreference
         android:key="svn_user"
         android:summary="请输入"
         android:title="用户名"
         app:iconSpaceReserved="false" />
+
     <EditTextPreference
-        android:inputType="textPassword"
         android:key="svn_password"
         android:summary="请输入"
         android:title="密码"

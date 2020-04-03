@@ -1,7 +1,6 @@
 package com.dede.tester.ui.svn
 
 import android.os.Bundle
-import android.text.TextUtils
 import android.text.format.Formatter
 import android.view.LayoutInflater
 import android.view.View
@@ -33,9 +32,7 @@ class SVNFragment : Fragment() {
     private val svnViewModel: SVNViewModel by viewModels()
     private val mainViewModel: MainViewModel by viewModels({ requireActivity() })
 
-    private val defaultSvnUrl =
-        SVNURL.parseURIEncoded("http://svn.guchele.cn/svn/sherry/trunk/app/android/releases/")
-
+    private lateinit var defaultSvnUrl: SVNURL
     private lateinit var authenticationManager: ISVNAuthenticationManager
 
     override fun onCreateView(
@@ -43,15 +40,20 @@ class SVNFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val user = arguments?.getString(SVNConfigFragment.KEY_SVN_USER)
-        val password = arguments?.getString(SVNConfigFragment.KEY_SVN_PASSWORD)
-        val noConfig = TextUtils.isEmpty(user) || TextUtils.isEmpty(password)
+        val svnConfig =
+            arguments?.getParcelable<SVNConfigViewModel.SVNConfig>(SVNConfigFragment.EXTRA_SVN_CONFIG)
+        val noConfig = svnConfig == null || svnConfig.isEmpty()
         if (noConfig) {
             findNavController().popBackStack(R.id.nav_svn, true)
             findNavController().navigate(R.id.nav_svn_config)
         }
+        val url = svnConfig?.svnUrl ?: SVNConfigFragment.DEFAULT_URL
+        defaultSvnUrl = SVNURL.parseURIEncoded(url)
         authenticationManager =
-            BasicAuthenticationManager.newInstance(user, password?.toCharArray())
+            BasicAuthenticationManager.newInstance(
+                svnConfig?.user,
+                svnConfig?.password?.toCharArray()
+            )
         svnViewModel.list.observe(viewLifecycleOwner, Observer {
             refresh_layout.isRefreshing = false
             (recycler_view.adapter as SVNTreeAdapter).refresh(it)
