@@ -21,6 +21,8 @@
 
     <Preference
         android:key="svn_login"
+        android:summary="点我登录"
         android:title="登录"
+        app:allowDividerAbove="true"
         app:iconSpaceReserved="false" />
 </PreferenceScreen>

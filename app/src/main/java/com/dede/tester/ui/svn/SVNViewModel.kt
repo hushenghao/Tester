@@ -8,6 +8,7 @@ import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -60,26 +61,22 @@ class SVNViewModel : ViewModel() {
         }
     }
 
-    private var downloading = false
+    val downloadStatus = MutableLiveData<Boolean>()
 
     fun download(
         context: Context,
         authenticationManager: ISVNAuthenticationManager,
         svnDirEntry: SVNDirEntry
     ) {
-        if (downloading) {
-            Toast.makeText(context, "有任务正在下载中", Toast.LENGTH_SHORT).show()
-            return
-        }
         viewModelScope.launch {
-            downloading = true
+            downloadStatus.value = true
             val name = svnDirEntry.name
             Toast.makeText(context, "开始下载 ${name}", Toast.LENGTH_SHORT).show()
             val file = withContext(Dispatchers.IO) {
                 val repository = SVNRepositoryFactory.create(svnDirEntry.url)
                 repository.authenticationManager = authenticationManager
 
-                val file = File(context.externalCacheDir, name)
+                val file = getDownloadFile(context, svnDirEntry)
                 if (file.exists()) {
                     file.delete()
                 }
@@ -106,11 +103,13 @@ class SVNViewModel : ViewModel() {
                 Toast.makeText(context, "下载失败 ${name}", Toast.LENGTH_SHORT).show()
             }
 
-            if (isApk(context, file)) {
-                install(context, file)
-            }
-            downloading = false
+            install(context, file)
+            downloadStatus.value = false
         }
+    }
+
+    fun getDownloadFile(context: Context, svnDirEntry: SVNDirEntry): File {
+        return File(context.externalCacheDir, svnDirEntry.name)
     }
 
     private fun isApk(context: Context, file: File): Boolean {
@@ -124,7 +123,10 @@ class SVNViewModel : ViewModel() {
         return false
     }
 
-    private fun install(context: Context, file: File) {
+    fun install(context: Context, file: File) {
+        if (!isApk(context, file)) {
+            return
+        }
         val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileProvider", file)
         } else {

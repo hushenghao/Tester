@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -16,7 +17,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.dede.tester.R
+import com.dede.tester.ext.findCoordinator
 import com.dede.tester.ui.MainViewModel
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_svn.*
 import org.tmatesoft.svn.core.SVNDirEntry
 import org.tmatesoft.svn.core.SVNNodeKind
@@ -119,7 +122,7 @@ class SVNFragment : Fragment() {
             return data.size
         }
 
-        private val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        private val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
 
         private fun formatDate(date: Date): String {
             return format.format(date)
@@ -164,7 +167,28 @@ class SVNFragment : Fragment() {
     }
 
     private fun download(svnDirEntry: SVNDirEntry) {
-        svnViewModel.download(requireContext(), authenticationManager, svnDirEntry)
+        if (svnViewModel.downloadStatus.value == true) {
+            Snackbar.make(findCoordinator(), "有任务正在下载", Snackbar.LENGTH_SHORT).show()
+            return
+        }
+
+        val downloadFile = svnViewModel.getDownloadFile(requireContext(), svnDirEntry)
+        if (!downloadFile.exists()) {
+            svnViewModel.download(requireContext(), authenticationManager, svnDirEntry)
+            return
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("提示")
+            .setMessage("${svnDirEntry.name}文件已存在，是否重新下载？")
+            .setNegativeButton("直接安装") { _, _ ->
+                svnViewModel.install(requireContext(), downloadFile)
+            }
+            .setPositiveButton("重新下载") { _, _ ->
+                svnViewModel.download(requireContext(), authenticationManager, svnDirEntry)
+            }
+            .create()
+            .show()
     }
 
     class SVNTreeHolder(parent: ViewGroup) : RecyclerView.ViewHolder(

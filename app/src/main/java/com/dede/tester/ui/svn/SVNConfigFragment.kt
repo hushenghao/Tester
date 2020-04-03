@@ -11,6 +11,8 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.dede.tester.R
+import com.dede.tester.ext.findCoordinator
+import com.google.android.material.snackbar.Snackbar
 
 class SVNConfigFragment : PreferenceFragmentCompat() {
 
@@ -39,20 +41,23 @@ class SVNConfigFragment : PreferenceFragmentCompat() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fun navigateSvn(config: SVNConfigViewModel.SVNConfig?) {
+        fun navigateSvn(config: SVNConfigViewModel.SVNConfig?): Boolean {
             if (config?.check() != true) {
-                return
+                return false
             }
             findNavController().popBackStack(R.id.nav_svn, true)// 弹出列表
             findNavController().popBackStack(R.id.nav_svn_config, true)// 弹出自己
             findNavController().navigate(R.id.nav_svn, Bundle().apply {
                 putParcelable(EXTRA_SVN_CONFIG, config)
             })
+            return true
         }
 
         findPreference<Preference>(KEY_SVN_LOGIN)?.setOnPreferenceClickListener {
             val config = viewModel.svnConfig.value
-            navigateSvn(config)
+            if (!navigateSvn(config)) {
+                Snackbar.make(findCoordinator(), "是不是哪里不对？", Snackbar.LENGTH_SHORT).show()
+            }
             return@setOnPreferenceClickListener true
         }
         val autoLogin = arguments?.getBoolean(EXTRA_AUTO_LOGIN, true) ?: true

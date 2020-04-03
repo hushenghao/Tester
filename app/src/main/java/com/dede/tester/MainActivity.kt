@@ -40,6 +40,9 @@ class MainActivity : AppCompatActivity() {
                 toolbar.visibility = View.GONE
                 window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
             } else {
+                if (destination.id != R.id.nav_svn) {
+                    toolbar.subtitle = null
+                }
                 toolbar.visibility = View.VISIBLE
                 window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
             }
@@ -88,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         if (s + 1000 > c) {
             super.onBackPressed()
         } else {
-            Snackbar.make(drawer_layout, "再按一次退出", Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(coordinator, "再按一次退出", Snackbar.LENGTH_SHORT).show()
             s = c
         }
     }
