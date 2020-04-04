@@ -19,3 +19,7 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class androidx.browser.trusted.TrustedWebActivityIntentBuilder { *; }
+-keep class com.uuzuche.lib_zxing.camera.CameraManager { *; }
+-keep class com.uuzuche.lib_zxing.camera.CameraConfigurationManager { *; }

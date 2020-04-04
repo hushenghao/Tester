@@ -80,9 +80,10 @@ class SVNConfigFragment : PreferenceFragmentCompat() {
     private fun getShowPassword(password: String?): String? {
         if (TextUtils.isEmpty(password)) return null
 
-        return (0..password!!.length)
-            .map { "" }
-            .reduce { acc, _ -> "$acc*" }
+//        return (0..password!!.length)
+//            .map { "" }
+//            .reduce { acc, _ -> "$acc*" }
+        return "******"
     }
 
     private val preference by lazy { PreferenceManager.getDefaultSharedPreferences(context) }

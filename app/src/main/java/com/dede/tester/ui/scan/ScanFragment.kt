@@ -1,22 +1,28 @@
 package com.dede.tester.ui.scan
 
 import android.Manifest
-import android.content.Intent
+import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Point
 import android.net.Uri
 import android.os.Bundle
-import android.text.TextUtils
 import android.util.Log
+import android.util.Patterns
 import android.view.SurfaceHolder
 import android.view.View
 import android.view.WindowManager
+import android.webkit.URLUtil
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.browser.customtabs.CustomTabsClient
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.browser.customtabs.CustomTabsServiceConnection
+import androidx.browser.trusted.TrustedWebActivityIntentBuilder
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import com.dede.tester.R
+import com.google.androidbrowserhelper.trusted.TwaLauncher
 import com.uuzuche.lib_zxing.activity.CaptureFragment
 import com.uuzuche.lib_zxing.activity.CodeUtils
 import com.uuzuche.lib_zxing.activity.ZXingLibrary
@@ -46,6 +52,16 @@ class ScanFragment : CaptureFragment(), CodeUtils.AnalyzeCallback {
         analyzeCallback = this
     }
 
+    private val connection = object : CustomTabsServiceConnection() {
+        override fun onCustomTabsServiceConnected(name: ComponentName, client: CustomTabsClient) {
+            // 预加载，参数暂时是保留参数，随便传
+            client.warmup(0)
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
@@ -66,6 +82,16 @@ class ScanFragment : CaptureFragment(), CodeUtils.AnalyzeCallback {
             scanSurfaceView()
             surfaceCreated = true
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // 预加载
+        CustomTabsClient.bindCustomTabsService(
+            requireContext(),
+            requireContext().packageName,
+            connection
+        )
     }
 
     override fun onResume() {
@@ -119,12 +145,38 @@ class ScanFragment : CaptureFragment(), CodeUtils.AnalyzeCallback {
 
     override fun onAnalyzeSuccess(mBitmap: Bitmap?, result: String?) {
         Log.i("ScanFragment", "Scan Relut: $result")
-        if (TextUtils.isEmpty(result)) {
+        if (!URLUtil.isValidUrl(result) || !Patterns.WEB_URL.matcher(result!!).matches()) {
             return
         }
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(result))
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(Intent.createChooser(intent, "选择浏览器打开"))
+
+        val uri = Uri.parse(result)
+        val twaLauncher = TwaLauncher(requireContext())
+        val builder = TrustedWebActivityIntentBuilder(uri)
+            .setToolbarColor(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
+        try {
+            val field =
+                TrustedWebActivityIntentBuilder::class.java.getDeclaredField("mIntentBuilder")
+            field.isAccessible = true
+            val customTabsBuilder = field.get(builder) as CustomTabsIntent.Builder
+            customTabsBuilder.setShowTitle(true)// 显示标题栏
+                .addDefaultShareMenuItem()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        twaLauncher.launch(builder, null, null)
+//        if (connected) {
+//            // custom tabs 打开
+//            val customTabsIntent = CustomTabsIntent.Builder()
+//                .setShowTitle(true)
+//                .addDefaultShareMenuItem()
+//                .setToolbarColor(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
+//                .build()
+//            customTabsIntent.launchUrl(requireContext(), uri)
+//        } else {
+//            val intent = Intent(Intent.ACTION_VIEW, uri)
+//                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//            startActivity(Intent.createChooser(intent, "选择浏览器打开"))
+//        }
 
         val navController = findNavController()
         navController.navigateUp()// 扫描页弹栈
