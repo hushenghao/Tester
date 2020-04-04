@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/nav_svn_config_unlogin"
+        android:id="@+id/action_svn_to_svn_config"
         android:orderInCategory="100"
         android:title="@string/svn_config"
         app:showAsAction="never" />

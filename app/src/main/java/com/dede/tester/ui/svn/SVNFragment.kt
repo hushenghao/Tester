@@ -87,10 +87,7 @@ class SVNFragment : Fragment() {
         }
 
         bt_config.setOnClickListener {
-            findNavController().popBackStack(R.id.nav_svn, true)
-            findNavController().navigate(R.id.nav_svn_config, Bundle().apply {
-                putBoolean(SVNConfigFragment.EXTRA_AUTO_LOGIN, false)
-            })
+            findNavController().navigate(R.id.action_svn_to_svn_config)
         }
 
         // 加载默认列表

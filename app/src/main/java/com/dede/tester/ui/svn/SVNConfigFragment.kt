@@ -45,9 +45,7 @@ class SVNConfigFragment : PreferenceFragmentCompat() {
             if (config?.check() != true) {
                 return false
             }
-            findNavController().popBackStack(R.id.nav_svn, true)// 弹出列表
-            findNavController().popBackStack(R.id.nav_svn_config, true)// 弹出自己
-            findNavController().navigate(R.id.nav_svn, Bundle().apply {
+            findNavController().navigate(R.id.action_svn_config_to_svn, Bundle().apply {
                 putParcelable(EXTRA_SVN_CONFIG, config)
             })
             return true

@@ -10,7 +10,10 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
 import android.view.SurfaceHolder
+import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import com.dede.tester.R
@@ -43,26 +46,40 @@ class ScanFragment : CaptureFragment(), CodeUtils.AnalyzeCallback {
         analyzeCallback = this
     }
 
-    private val callback = object : SurfaceHolder.Callback {
-        override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        requireActivity().actionBar?.hide()
+        (requireActivity() as? AppCompatActivity)?.supportActionBar?.hide()
+    }
 
-        override fun surfaceDestroyed(holder: SurfaceHolder?) {
-        }
+    private var surfaceCreated = false
 
-        override fun surfaceCreated(holder: SurfaceHolder?) {
+    override fun surfaceDestroyed(holder: SurfaceHolder?) {
+        super.surfaceDestroyed(holder)
+        surfaceCreated = false
+    }
+
+    override fun surfaceCreated(holder: SurfaceHolder?) {
+        super.surfaceCreated(holder)
+        if (!surfaceCreated) {
             scanSurfaceView()
+            surfaceCreated = true
         }
     }
 
     override fun onResume() {
         super.onResume()
-        preview_view.holder.addCallback(callback)
+        if (surfaceCreated) {
+            scanSurfaceView()
+        }
     }
 
-    override fun onPause() {
-        super.onPause()
-        preview_view.holder.removeCallback(callback)
+    override fun onDestroyView() {
+        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        requireActivity().actionBar?.show()
+        (requireActivity() as? AppCompatActivity)?.supportActionBar?.show()
+        super.onDestroyView()
     }
 
     private fun scanSurfaceView() {

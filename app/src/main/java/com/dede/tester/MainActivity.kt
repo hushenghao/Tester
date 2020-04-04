@@ -1,10 +1,20 @@
 package com.dede.tester
 
+import android.content.Intent
+import android.content.pm.ShortcutInfo
+import android.content.pm.ShortcutManager
+import android.graphics.drawable.Icon
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.view.*
+import android.view.Gravity
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -25,7 +35,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val navController by lazy { findNavController(R.id.nav_host_fragment) }
-
     private val mainViewModel by viewModels<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,16 +46,12 @@ class MainActivity : AppCompatActivity() {
         nav_view.setupWithNavController(navController)
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == R.id.nav_scan) {
-                toolbar.visibility = View.GONE
                 fab.visibility = View.GONE
-                window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
             } else {
+                fab.visibility = View.VISIBLE
                 if (destination.id != R.id.nav_svn) {
                     toolbar.subtitle = null
                 }
-                toolbar.visibility = View.VISIBLE
-                fab.visibility = View.VISIBLE
-                window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
             }
             invalidateOptionsMenu()
         }
@@ -59,8 +64,43 @@ class MainActivity : AppCompatActivity() {
         })
 
         fab.setOnClickListener {
-            navController.navigate(R.id.nav_scan)
+            navController.navigate(
+                R.id.nav_scan,
+                null,
+                NavOptions.Builder()
+                    .setEnterAnim(R.anim.fragment_open_enter)
+                    .setPopEnterAnim(R.anim.fragment_open_enter)
+                    .setExitAnim(R.anim.fragment_close_exit)
+                    .setPopExitAnim(R.anim.fragment_close_exit)
+                    .build()
+            )
         }
+
+        navController.handleDeepLink(intent)
+        installShortcut()
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        navController.handleDeepLink(intent)
+    }
+
+    private fun installShortcut() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
+            return
+        }
+        val shortcutManager = getSystemService(ShortcutManager::class.java) ?: return
+        val intent = Intent(this, MainActivity::class.java)
+            .setAction(Intent.ACTION_VIEW)
+            .setData(Uri.parse("http://dede.tester/main/scan"))
+        val shortcut = ShortcutInfo.Builder(this, "scan")
+            .setShortLabel(getString(R.string.scan))
+            .setLongLabel(getString(R.string.scan))
+            .setIcon(Icon.createWithResource(this, R.drawable.ic_scan))
+            .setIntent(intent)
+            .build()
+
+        shortcutManager.dynamicShortcuts = listOf(shortcut)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -99,8 +139,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.nav_svn_config_unlogin) {
-            navController.navigate(R.id.nav_svn_config_unlogin)// svn配置
+        if (item.itemId == R.id.action_svn_to_svn_config) {
+            navController.navigate(item.itemId)
             return true
         }
         return super.onOptionsItemSelected(item)

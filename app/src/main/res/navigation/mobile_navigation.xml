@@ -11,37 +11,37 @@
         android:label="@string/svn"
         tools:layout="@layout/fragment_svn">
         <action
-            android:id="@+id/action_SVN_to_SVNConfig"
-            app:destination="@id/nav_svn_config" />
+            android:id="@+id/action_svn_to_svn_config"
+            app:destination="@id/nav_svn_config">
+            <!--不自动登录-->
+            <argument
+                android:name="auto_login"
+                android:defaultValue="false"
+                app:argType="boolean" />
+        </action>
     </fragment>
 
     <fragment
         android:id="@+id/nav_svn_config"
         android:name="com.dede.tester.ui.svn.SVNConfigFragment"
         android:label="@string/svn_config">
+        <!--弹出svn列表页-->
         <action
-            android:id="@+id/action_SVNConfig_to_SVN"
-            app:destination="@id/nav_svn" />
-    </fragment>
-
-    <!--不自动登录-->
-    <fragment
-        android:id="@+id/nav_svn_config_unlogin"
-        android:name="com.dede.tester.ui.svn.SVNConfigFragment"
-        android:label="@string/svn_config">
-        <argument
-            android:name="auto_login"
-            android:defaultValue="false"
-            app:argType="boolean" />
-        <action
-            android:id="@+id/action_SVNConfig_to_SVN"
-            app:destination="@id/nav_svn" />
+            android:id="@+id/action_svn_config_to_svn"
+            app:destination="@id/nav_svn"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/nav_svn_config"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
         android:id="@+id/nav_scan"
         android:name="com.dede.tester.ui.scan.ScanFragment"
-        android:label="@string/menu_scan"
-        tools:layout="@layout/fragment_scan" />
+        android:label="@string/scan"
+        tools:layout="@layout/fragment_scan">
+        <deepLink
+            android:id="@+id/deeplink_scan"
+            app:uri="http://dede.tester/main/scan" />
+    </fragment>
 
 </navigation>
