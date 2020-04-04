@@ -12,7 +12,6 @@ import android.util.Patterns
 import android.view.SurfaceHolder
 import android.view.View
 import android.view.WindowManager
-import android.webkit.URLUtil
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsClient
@@ -65,7 +64,6 @@ class ScanFragment : CaptureFragment(), CodeUtils.AnalyzeCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-        requireActivity().actionBar?.hide()
         (requireActivity() as? AppCompatActivity)?.supportActionBar?.hide()
     }
 
@@ -75,6 +73,14 @@ class ScanFragment : CaptureFragment(), CodeUtils.AnalyzeCallback {
         super.surfaceDestroyed(holder)
         surfaceCreated = false
     }
+//
+//    override fun handleDecode(result: Result?, barcode: Bitmap?) {
+//        // 关闭声音
+//        val playBeepField = CaptureFragment::class.java.getDeclaredField("playBeep")
+//        playBeepField.isAccessible = true
+//        playBeepField.set(this, false)
+//        super.handleDecode(result, barcode)
+//    }
 
     override fun surfaceCreated(holder: SurfaceHolder?) {
         super.surfaceCreated(holder)
@@ -103,7 +109,6 @@ class ScanFragment : CaptureFragment(), CodeUtils.AnalyzeCallback {
 
     override fun onDestroyView() {
         requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-        requireActivity().actionBar?.show()
         (requireActivity() as? AppCompatActivity)?.supportActionBar?.show()
         super.onDestroyView()
     }
@@ -145,7 +150,7 @@ class ScanFragment : CaptureFragment(), CodeUtils.AnalyzeCallback {
 
     override fun onAnalyzeSuccess(mBitmap: Bitmap?, result: String?) {
         Log.i("ScanFragment", "Scan Relut: $result")
-        if (!URLUtil.isValidUrl(result) || !Patterns.WEB_URL.matcher(result!!).matches()) {
+        if (/*!URLUtil.isValidUrl(result) || */!Patterns.WEB_URL.matcher(result!!).matches()) {
             return
         }
 

@@ -7,10 +7,7 @@ import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.view.Gravity
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -68,10 +65,10 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_scan,
                 null,
                 NavOptions.Builder()
-                    .setEnterAnim(R.anim.fragment_open_enter)
-                    .setPopEnterAnim(R.anim.fragment_open_enter)
-                    .setExitAnim(R.anim.fragment_close_exit)
-                    .setPopExitAnim(R.anim.fragment_close_exit)
+                    .setEnterAnim(R.anim.fragment_fade_enter)
+                    .setPopEnterAnim(R.anim.fragment_fade_enter)
+                    .setExitAnim(R.anim.fragment_fade_exit)
+                    .setPopExitAnim(R.anim.fragment_fade_exit)
                     .build()
             )
         }
