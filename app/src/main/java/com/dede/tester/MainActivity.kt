@@ -38,12 +38,14 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == R.id.nav_scan) {
                 toolbar.visibility = View.GONE
+                fab.visibility = View.GONE
                 window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
             } else {
                 if (destination.id != R.id.nav_svn) {
                     toolbar.subtitle = null
                 }
                 toolbar.visibility = View.VISIBLE
+                fab.visibility = View.VISIBLE
                 window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
             }
             invalidateOptionsMenu()

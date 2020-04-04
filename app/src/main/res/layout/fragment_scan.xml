@@ -16,9 +16,9 @@
         app:inner_corner_color="@android:color/white"
         app:inner_corner_length="20dp"
         app:inner_corner_width="2dp"
-        app:inner_height="200dp"
+        app:inner_height="230dp"
         app:inner_scan_iscircle="true"
-        app:inner_scan_speed="10"
-        app:inner_width="200dp" />
+        app:inner_scan_speed="8"
+        app:inner_width="230dp" />
 
 </FrameLayout>
