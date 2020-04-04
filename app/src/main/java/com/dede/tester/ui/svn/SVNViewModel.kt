@@ -48,7 +48,10 @@ class SVNViewModel : ViewModel() {
             }
 
             val arrayList = ArrayList(collection.map { it as SVNDirEntry })
-            if (repositoryRoot != null && svnUrl != repositoryRoot) {// 没有到根目录
+            if (repositoryRoot != null &&
+                svnUrl != repositoryRoot &&
+                !repositoryRoot.toString().startsWith(svnUrl.toString())
+            ) {// 没有到根目录
                 // 手动构建第一个返回上层的空位
                 val parentSvnDirEntry =
                     createParentSvnDirEntry(svnUrl.removePathTail(), repositoryRoot!!)
