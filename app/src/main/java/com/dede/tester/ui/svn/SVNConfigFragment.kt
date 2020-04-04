@@ -1,18 +1,22 @@
 package com.dede.tester.ui.svn
 
 import android.os.Bundle
+import android.text.InputType
 import android.text.TextUtils
+import android.text.method.PasswordTransformationMethod
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.preference.EditTextPreference
+import androidx.preference.EditTextPreference.OnBindEditTextListener
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.dede.tester.R
 import com.dede.tester.ext.findCoordinator
 import com.google.android.material.snackbar.Snackbar
+
 
 class SVNConfigFragment : PreferenceFragmentCompat() {
 
@@ -31,11 +35,11 @@ class SVNConfigFragment : PreferenceFragmentCompat() {
     private val viewModel: SVNConfigViewModel by viewModels()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         addPreferencesFromResource(R.xml.preference_svn_config)
+        findPreference<EditTextPreference>(KEY_SVN_PASSWORD)?.setOnBindEditTextListener { editText ->
+            editText.inputType = InputType.TYPE_TEXT_VARIATION_PASSWORD
+            editText.transformationMethod = PasswordTransformationMethod.getInstance()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
