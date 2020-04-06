@@ -24,7 +24,6 @@ import kotlinx.android.synthetic.main.fragment_svn.*
 import org.tmatesoft.svn.core.SVNDirEntry
 import org.tmatesoft.svn.core.SVNNodeKind
 import org.tmatesoft.svn.core.SVNURL
-import org.tmatesoft.svn.core.auth.BasicAuthenticationManager
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager
 import java.text.SimpleDateFormat
 import java.util.*
@@ -52,11 +51,7 @@ class SVNFragment : Fragment() {
         }
         val url = svnConfig?.svnUrl ?: SVNConfigFragment.DEFAULT_URL
         defaultSvnUrl = SVNURL.parseURIEncoded(url)
-        authenticationManager =
-            BasicAuthenticationManager.newInstance(
-                svnConfig?.user,
-                svnConfig?.password?.toCharArray()
-            )
+        authenticationManager = CustomAuthManager(svnConfig?.user, svnConfig?.password)
         svnViewModel.list.observe(viewLifecycleOwner, Observer {
             refresh_layout.isRefreshing = false
             (recycler_view.adapter as SVNTreeAdapter).refresh(it)
@@ -95,6 +90,7 @@ class SVNFragment : Fragment() {
     }
 
     private fun loadSVNTree(svnUrl: SVNURL) {
+        bt_config.visibility = View.GONE
         mainViewModel.subTitle.value = svnUrl.path
         refresh_layout.tag = svnUrl
         refresh_layout.isRefreshing = true

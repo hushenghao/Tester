@@ -39,9 +39,7 @@ class SVNViewModel : ViewModel() {
                     repository.getDir("", -1, null as SVNProperties?, null as Collection<*>?)
                 } catch (e: SVNException) {
                     e.printStackTrace()
-                    withContext(Dispatchers.Main) {
-                        error.value = e
-                    }
+                    error.postValue(e)
                     emptyList<SVNDirEntry>()
                 }
                 list
