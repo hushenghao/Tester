@@ -64,6 +64,10 @@ class SVNFragment : Fragment() {
             // 出错喽
             Toast.makeText(requireContext(), it.localizedMessage, Toast.LENGTH_LONG).show()
         })
+        mainViewModel.sortType.observe(viewLifecycleOwner, Observer {
+            svnViewModel.sortType = it// 排序方式更新
+            refresh()
+        })
         return inflater.inflate(R.layout.fragment_svn, container, false)
     }
 
@@ -77,8 +81,7 @@ class SVNFragment : Fragment() {
         recycler_view.addItemDecoration(itemDecoration)
         refresh_layout.setColorSchemeResources(R.color.colorAccent, R.color.colorPrimary)
         refresh_layout.setOnRefreshListener {
-            val svnurl = refresh_layout.tag as SVNURL
-            loadSVNTree(svnurl)
+            refresh()
         }
 
         bt_config.setOnClickListener {
@@ -87,6 +90,14 @@ class SVNFragment : Fragment() {
 
         // 加载默认列表
         loadSVNTree(defaultSvnUrl)
+    }
+
+    /**
+     * 刷新列表
+     */
+    private fun refresh() {
+        val svnurl = (refresh_layout.tag as? SVNURL) ?: defaultSvnUrl
+        loadSVNTree(svnurl)
     }
 
     private fun loadSVNTree(svnUrl: SVNURL) {

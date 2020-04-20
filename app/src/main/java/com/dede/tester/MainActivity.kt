@@ -7,9 +7,13 @@ import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.view.*
+import android.view.Gravity
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.get
 import androidx.lifecycle.Observer
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
@@ -22,6 +26,8 @@ import com.dede.tester.ui.MainViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlin.math.max
+import kotlin.math.min
 
 class MainActivity : AppCompatActivity() {
 
@@ -73,6 +79,8 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
+        mainViewModel.initSort(this)// 加载排序方式
+
         navController.handleDeepLink(intent)
         installShortcut()
     }
@@ -104,6 +112,11 @@ class MainActivity : AppCompatActivity() {
         // Inflate the menu; this adds items to the action bar if it is present.
         if (navController.currentDestination?.id == R.id.nav_svn) {
             menuInflater.inflate(R.menu.main, menu)
+            val sortMenu = menu.findItem(R.id.group_sort).subMenu
+            mainViewModel.sortType.observe(this, Observer {
+                val index = max(0, min(it, sortMenu.size() - 1))
+                sortMenu[index].isChecked = true
+            })
             return true
         }
         return false
@@ -136,11 +149,30 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_svn_to_svn_config) {
-            navController.navigate(item.itemId)
+        val sortIndex = getSortIndex(item.itemId)
+        if (sortIndex >= 0) {
+            mainViewModel.updateSort(this, sortIndex)
             return true
         }
-        return super.onOptionsItemSelected(item)
+        return when (item.itemId) {
+            R.id.action_svn_to_svn_config -> {
+                navController.navigate(item.itemId)
+                true
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
+        }
+    }
+
+    private fun getSortIndex(itemId: Int): Int {
+        return when (itemId) {
+            R.id.sort_name_asc -> 0
+            R.id.sort_name_des -> 1
+            R.id.sort_data_asc -> 2
+            R.id.sort_data_des -> 3
+            else -> -1
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

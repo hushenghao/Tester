@@ -6,4 +6,25 @@
         android:orderInCategory="100"
         android:title="@string/svn_config"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/group_sort"
+        android:title="排序方式"
+        app:showAsAction="never">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/sort_name_asc"
+                    android:title="名称升序" />
+                <item
+                    android:id="@+id/sort_name_des"
+                    android:title="名称降序" />
+                <item
+                    android:id="@+id/sort_data_asc"
+                    android:title="时间升序" />
+                <item
+                    android:id="@+id/sort_data_des"
+                    android:title="时间降序" />
+            </group>
+        </menu>
+    </item>
 </menu>

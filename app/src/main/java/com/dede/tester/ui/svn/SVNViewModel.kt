@@ -8,7 +8,6 @@ import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.FileProvider
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,6 +27,8 @@ class SVNViewModel : ViewModel() {
     val list = MutableLiveData<List<SVNDirEntry>>()
     val error = MutableLiveData<Exception>()
 
+    var sortType: Int = 0
+
     fun loadDirEntry(authenticationManager: ISVNAuthenticationManager, svnUrl: SVNURL) {
         viewModelScope.launch {
             var repositoryRoot: SVNURL? = null
@@ -46,6 +47,7 @@ class SVNViewModel : ViewModel() {
             }
 
             val arrayList = ArrayList(collection.map { it as SVNDirEntry })
+            sort(arrayList)// 排序
             if (repositoryRoot != null &&
                 svnUrl != repositoryRoot &&
                 !repositoryRoot.toString().startsWith(svnUrl.toString())
@@ -59,6 +61,23 @@ class SVNViewModel : ViewModel() {
                 return@launch
             }
             list.value = arrayList
+        }
+    }
+
+    private fun sort(arrayList: ArrayList<SVNDirEntry>) {
+        when (sortType) {
+            0 -> {
+                arrayList.sortBy { it.name }
+            }
+            1 -> {
+                arrayList.sortByDescending { it.name }
+            }
+            2 -> {
+                arrayList.sortBy { it.date }
+            }
+            3 -> {
+                arrayList.sortByDescending { it.date }
+            }
         }
     }
 
