@@ -25,7 +25,7 @@ android {
 
     applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "tester-${variant.versionName}.apk"
+            outputFileName = "tester-${variant.buildType.name}-${variant.versionName}.apk"
         }
     }
 
