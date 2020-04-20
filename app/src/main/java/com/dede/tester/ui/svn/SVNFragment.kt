@@ -178,7 +178,15 @@ class SVNFragment : Fragment() {
 
         val downloadFile = svnViewModel.getDownloadFile(requireContext(), svnDirEntry)
         if (!downloadFile.exists()) {
-            svnViewModel.download(requireContext(), authenticationManager, svnDirEntry)
+            AlertDialog.Builder(requireContext())
+                .setTitle("提示")
+                .setMessage("是否下载${svnDirEntry.name}？")
+                .setNegativeButton("取消", null)
+                .setPositiveButton("下载") { _, _ ->
+                    svnViewModel.download(requireContext(), authenticationManager, svnDirEntry)
+                }
+                .create()
+                .show()
             return
         }
 
