@@ -43,6 +43,15 @@ android {
 
 }
 
+configurations {
+    implementation {
+        exclude group: 'androidx.documentfile'
+        exclude group: 'androidx.slidingpanelayout'
+        exclude group: 'androidx.print'
+        exclude group: 'androidx.media'
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -67,6 +76,10 @@ dependencies {
     implementation 'cn.yipianfengye.android:zxing-library:2.2'
     implementation('org.tmatesoft.svnkit:svnkit:1.9.3') {
         exclude group: "com.jcraft"
+        exclude group: "org.tmatesoft.sqljet", module: "sqljet"
+        exclude group: "de.regnis.q.sequence", module: "sequence-library"
+        exclude group: "net.java.dev.jna"
+        exclude group: "com.trilead", module: "trilead-ssh2"
     }
 //    implementation 'com.liulishuo.filedownloader:library:1.7.7'
 
