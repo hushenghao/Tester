@@ -1,5 +1,8 @@
 package com.dede.tester.ui.svn
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -7,6 +10,7 @@ import android.os.Build
 import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,10 +21,11 @@ import org.tmatesoft.svn.core.*
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
+import java.lang.ref.WeakReference
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.roundToInt
 
 class SVNViewModel : ViewModel() {
 
@@ -83,11 +88,68 @@ class SVNViewModel : ViewModel() {
 
     val downloadStatus = MutableLiveData<Boolean>()
 
+    private var appContext: WeakReference<Context>? = null
+    private val channelId = "download_channel"
+    private var notificationId = 1
+
+    private fun showProgress(svnDirEntry: SVNDirEntry, percent: Float) {
+        val context = appContext?.get() ?: return
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationChannel = notificationManager.getNotificationChannel(channelId)
+            if (notificationChannel == null) {
+                val channel = NotificationChannel(
+                    channelId,
+                    "文件下载",
+                    NotificationManager.IMPORTANCE_DEFAULT
+                ).apply {
+                    setSound(null, null)
+                }
+                notificationManager.createNotificationChannel(channel)
+            }
+        }
+
+        val progress = (100 * percent).roundToInt()
+        val notification = NotificationCompat.Builder(context, channelId)
+            .setProgress(100, progress, false)
+            .setContentTitle(svnDirEntry.name)
+            .setContentText("${progress} %")
+            .setSmallIcon(android.R.drawable.stat_sys_download)
+            .setSound(null)
+            .setAutoCancel(true)
+            .setOnlyAlertOnce(false)
+            .build()
+        notificationManager.notify(notificationId, notification)
+    }
+
+    private fun showFinish(svnDirEntry: SVNDirEntry, file: File) {
+        val context = appContext?.get() ?: return
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (!isApk(context, file)) {
+            notificationManager.cancel(notificationId)
+        }
+        val activity = PendingIntent.getActivity(context, 0, getInstallIntent(context, file), 0)
+        val notification = NotificationCompat.Builder(context, channelId)
+            .setContentTitle(svnDirEntry.name)
+            .setContentText("点击安装")
+            .setContentIntent(activity)
+            .setSmallIcon(android.R.drawable.stat_sys_download_done)
+            .setSound(null)
+            .setAutoCancel(true)
+            .setOnlyAlertOnce(false)
+            .build()
+        notificationManager.notify(notificationId, notification)
+        notificationId++// 自增id，以供下次下载
+    }
+
     fun download(
         context: Context,
         authenticationManager: ISVNAuthenticationManager,
         svnDirEntry: SVNDirEntry
     ) {
+        appContext = WeakReference(context.applicationContext)
         viewModelScope.launch {
             downloadStatus.value = true
             val name = svnDirEntry.name
@@ -102,8 +164,16 @@ class SVNViewModel : ViewModel() {
                 }
                 Log.i("HomeViewModel", "download: " + file.absolutePath)
                 try {
-                    val output = FileOutputStream(file)
+                    val output = ProgressFileOutputStream(svnDirEntry.size, file)
+                    async(Dispatchers.Main) {
+                        while (!output.isClosed) {
+                            showProgress(svnDirEntry, output.percent)
+                            delay(1000L)
+                        }
+                        showFinish(svnDirEntry, file)
+                    }
                     val l = repository.getFile("", -1, null, output)
+                    output.close()
                     Log.i("HomeViewModel", "download: " + l)
                 } catch (e: IOException) {
                     e.printStackTrace()
@@ -143,10 +213,7 @@ class SVNViewModel : ViewModel() {
         return false
     }
 
-    fun install(context: Context, file: File) {
-        if (!isApk(context, file)) {
-            return
-        }
+    private fun getInstallIntent(context: Context, file: File): Intent {
         val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileProvider", file)
         } else {
@@ -156,6 +223,14 @@ class SVNViewModel : ViewModel() {
         intent.setDataAndType(uri, "application/vnd.android.package-archive")
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        return intent
+    }
+
+    fun install(context: Context, file: File) {
+        if (!isApk(context, file)) {
+            return
+        }
+        val intent = getInstallIntent(context, file)
         context.startActivity(intent)
     }
 

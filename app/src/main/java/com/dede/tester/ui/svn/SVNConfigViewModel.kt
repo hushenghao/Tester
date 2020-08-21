@@ -62,8 +62,11 @@ class SVNConfigViewModel : ViewModel(), SharedPreferences.OnSharedPreferenceChan
 
     fun loadConfig(context: Context) {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-        _svnConfig.svnUrl =
-            sharedPreferences.getString(SVNConfigFragment.KEY_SVN_URL, DEFAULT_URL) ?: DEFAULT_URL
+        var url = sharedPreferences.getString(SVNConfigFragment.KEY_SVN_URL, DEFAULT_URL) ?: DEFAULT_URL
+        if (TextUtils.isEmpty(url)) {
+            url = DEFAULT_URL
+        }
+        _svnConfig.svnUrl = url
         _svnConfig.user = sharedPreferences.getString(SVNConfigFragment.KEY_SVN_USER, null)
         _svnConfig.password = sharedPreferences.getString(SVNConfigFragment.KEY_SVN_PASSWORD, null)
         svnConfig.value = _svnConfig
@@ -73,7 +76,11 @@ class SVNConfigViewModel : ViewModel(), SharedPreferences.OnSharedPreferenceChan
         sharedPreferences ?: return
         when (key) {
             SVNConfigFragment.KEY_SVN_URL -> {
-                _svnConfig.svnUrl = sharedPreferences.getString(key, DEFAULT_URL) ?: DEFAULT_URL
+                var url = sharedPreferences.getString(key, DEFAULT_URL) ?: DEFAULT_URL
+                if (TextUtils.isEmpty(url)) {
+                    url = DEFAULT_URL
+                }
+                _svnConfig.svnUrl = url
             }
             SVNConfigFragment.KEY_SVN_USER -> {
                 _svnConfig.user = sharedPreferences.getString(key, null)
