@@ -1,5 +1,8 @@
 <paths>
     <external-cache-path
+        name="external-download"
+        path="/download/" />
+    <cache-path
         name="download"
-        path="/" />
+        path="/download/" />
 </paths>

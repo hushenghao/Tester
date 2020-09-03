@@ -18,6 +18,9 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.dede.tester.R
 import com.dede.tester.ext.findCoordinator
+import com.dede.tester.ext.getDownloadFile
+import com.dede.tester.ext.installApk
+import com.dede.tester.ext.isApk
 import com.dede.tester.ui.MainViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_svn.*
@@ -147,11 +150,11 @@ class SVNFragment : Fragment() {
                 }
                 svnDirEntry.kind == SVNNodeKind.DIR -> {
                     // 文件夹不显示大小
-                    holder.tv_info.text = "${author}   r${revision}\n${date}"
+                    holder.tv_info.text = "$author   r${revision}\n${date}"
                     holder.iv_type.setImageResource(R.drawable.ic_folder)
                 }
                 else -> {
-                    holder.tv_info.text = "${size}   ${author}   r${revision}\n${date}"
+                    holder.tv_info.text = "$size   $author   r${revision}\n${date}"
                     holder.iv_type.setImageResource(R.drawable.ic_file)
                 }
             }
@@ -176,31 +179,34 @@ class SVNFragment : Fragment() {
             return
         }
 
-        val downloadFile = svnViewModel.getDownloadFile(requireContext(), svnDirEntry)
+        val context = requireContext()
+        val downloadFile = context.getDownloadFile(svnDirEntry.name)
         if (!downloadFile.exists()) {
-            AlertDialog.Builder(requireContext())
+            AlertDialog.Builder(context)
                 .setTitle("提示")
                 .setMessage("是否下载${svnDirEntry.name}？")
                 .setNegativeButton("取消", null)
                 .setPositiveButton("下载") { _, _ ->
-                    svnViewModel.download(requireContext(), authenticationManager, svnDirEntry)
+                    svnViewModel.download(context, authenticationManager, svnDirEntry)
                 }
                 .create()
                 .show()
             return
         }
 
-        AlertDialog.Builder(requireContext())
+        val builder = AlertDialog.Builder(context)
             .setTitle("提示")
             .setMessage("${svnDirEntry.name}文件已存在，是否重新下载？")
-            .setNegativeButton("直接安装") { _, _ ->
-                svnViewModel.install(requireContext(), downloadFile)
-            }
             .setPositiveButton("重新下载") { _, _ ->
-                svnViewModel.download(requireContext(), authenticationManager, svnDirEntry)
+                svnViewModel.download(context, authenticationManager, svnDirEntry)
             }
-            .create()
-            .show()
+        if (downloadFile.isApk(context)) {
+            builder.setNegativeButton("直接安装") { _, _ ->
+                installApk(context, downloadFile)
+            }
+        }
+
+        builder.create().show()
     }
 
     class SVNTreeHolder(parent: ViewGroup) : RecyclerView.ViewHolder(

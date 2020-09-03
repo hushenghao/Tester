@@ -12,6 +12,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.get
 import androidx.lifecycle.Observer
@@ -157,6 +158,18 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.action_svn_to_svn_config -> {
                 navController.navigate(item.itemId)
+                true
+            }
+            R.id.action_clear_dir -> {
+                AlertDialog.Builder(this)
+                    .setTitle("提示")
+                    .setMessage("是否所有清空下载文件？")
+                    .setNegativeButton("取消", null)
+                    .setPositiveButton("确定") { _, _ ->
+                        mainViewModel.clearDownload(this)
+                    }
+                    .create()
+                    .show()
                 true
             }
             else -> {

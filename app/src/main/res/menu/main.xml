@@ -27,4 +27,9 @@
             </group>
         </menu>
     </item>
+    <item
+        android:id="@+id/action_clear_dir"
+        android:orderInCategory="100"
+        android:title="清空下载文件"
+        app:showAsAction="never" />
 </menu>
