@@ -1,6 +1,8 @@
 package com.dede.tester.ui.svn
 
+import android.content.Context
 import android.os.Bundle
+import android.os.Handler
 import android.text.format.Formatter
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -32,13 +35,49 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class SVNFragment : Fragment() {
+class SVNFragment : Fragment(), Runnable {
 
     private val svnViewModel: SVNViewModel by viewModels()
     private val mainViewModel: MainViewModel by viewModels({ requireActivity() })
 
     private lateinit var defaultSvnUrl: SVNURL
     private lateinit var authenticationManager: ISVNAuthenticationManager
+
+    private var currentSvnUrl: SVNURL
+        get() = (recycler_view?.tag as? SVNURL) ?: defaultSvnUrl
+        set(value) {
+            recycler_view?.tag = value
+        }
+
+    private val backCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            val svnurl = currentSvnUrl
+            val canBack = if (svnurl == defaultSvnUrl) false else !svnViewModel.isRoot
+            if (!canBack) {
+                isEnabled = false
+                showBackSnackBar()
+                return
+            }
+            loadSVNTree(svnurl.removePathTail())// 加载上一级
+        }
+    }
+
+    private val handler = Handler()
+
+    override fun run() {
+        backCallback.isEnabled = true
+    }
+
+    private fun showBackSnackBar() {
+        handler.removeCallbacks(this)
+        handler.postDelayed(this, 1000)
+        Snackbar.make(findCoordinator(), "再按一次退出", Snackbar.LENGTH_SHORT).show()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        requireActivity().onBackPressedDispatcher.addCallback(this, backCallback)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,6 +94,7 @@ class SVNFragment : Fragment() {
         val url = svnConfig?.svnUrl ?: SVNConfigFragment.DEFAULT_URL
         defaultSvnUrl = SVNURL.parseURIEncoded(url)
         authenticationManager = CustomAuthManager(svnConfig?.user, svnConfig?.password)
+
         svnViewModel.list.observe(viewLifecycleOwner, Observer {
             refresh_layout.isRefreshing = false
             (recycler_view.adapter as SVNTreeAdapter).refresh(it)
@@ -99,14 +139,13 @@ class SVNFragment : Fragment() {
      * 刷新列表
      */
     private fun refresh() {
-        val svnurl = (refresh_layout.tag as? SVNURL) ?: defaultSvnUrl
-        loadSVNTree(svnurl)
+        loadSVNTree(currentSvnUrl)
     }
 
     private fun loadSVNTree(svnUrl: SVNURL) {
         bt_config.visibility = View.GONE
         mainViewModel.subTitle.value = svnUrl.path
-        refresh_layout.tag = svnUrl
+        currentSvnUrl = svnUrl
         refresh_layout.isRefreshing = true
         svnViewModel.loadDirEntry(authenticationManager, svnUrl)
     }
@@ -167,6 +206,7 @@ class SVNFragment : Fragment() {
                         download(svnDirEntry)
                     }
                     else -> {
+
                     }
                 }
             }

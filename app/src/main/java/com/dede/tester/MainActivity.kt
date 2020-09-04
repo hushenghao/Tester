@@ -24,7 +24,6 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.dede.tester.ui.MainViewModel
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlin.math.max
@@ -127,26 +126,13 @@ class MainActivity : AppCompatActivity() {
         return supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
     }
 
-    private var s = 0L
-
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(Gravity.LEFT)) {
             drawer_layout.closeDrawer(Gravity.LEFT)
             return
         }
 
-        if (getNavFragment()?.childFragmentManager?.backStackEntryCount ?: 0 >= 1) {
-            super.onBackPressed()
-            return
-        }
-
-        val c = System.currentTimeMillis()
-        if (s + 1000 > c) {
-            super.onBackPressed()
-        } else {
-            Snackbar.make(coordinator, "再按一次退出", Snackbar.LENGTH_SHORT).show()
-            s = c
-        }
+        super.onBackPressed()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

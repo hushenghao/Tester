@@ -23,6 +23,9 @@ class SVNViewModel : ViewModel() {
     val error = MutableLiveData<Exception>()
     val downloadStatus = MutableLiveData<Boolean>()
 
+    var isRoot: Boolean = false
+        private set
+
     var sortType: Int = 0
 
     private var parentSVNDirEntry: SVNDirEntry? = null
@@ -47,20 +50,22 @@ class SVNViewModel : ViewModel() {
             val arrayList = ArrayList(collection.map { it as SVNDirEntry })
             sort(arrayList)// 排序
 
-            // 没有到根目录
-            val hasParent = repositoryRoot != null && svnUrl != repositoryRoot &&
-                    !repositoryRoot.toString().startsWith(svnUrl.toString())
-            if (hasParent) {
+            val svnViewModel = this@SVNViewModel
+
+            val isRoot = repositoryRoot == null || svnUrl == repositoryRoot
+            svnViewModel.isRoot = isRoot
+
+            if (!isRoot) {// 没有到根目录
                 // 手动构建第一个返回上层的空位
                 val parentSVNDirEntry =
-                    createParentSvnDirEntry(svnUrl.removePathTail(), repositoryRoot!!)
+                    createParentSvnDirEntry(svnUrl.removePathTail(), repositoryRoot)
                 arrayList.add(0, parentSVNDirEntry)
-                this@SVNViewModel.parentSVNDirEntry = parentSVNDirEntry
+                svnViewModel.parentSVNDirEntry = parentSVNDirEntry
             }
             if (!isActive) {
                 return@launch
             }
-            this@SVNViewModel.list.value = arrayList
+            svnViewModel.list.value = arrayList
         }
     }
 
@@ -139,7 +144,7 @@ class SVNViewModel : ViewModel() {
         return svnDirEntry === parentSVNDirEntry
     }
 
-    private fun createParentSvnDirEntry(svnUrl: SVNURL, repositoryRoot: SVNURL): SVNDirEntry {
+    private fun createParentSvnDirEntry(svnUrl: SVNURL, repositoryRoot: SVNURL?): SVNDirEntry {
         return SVNDirEntry(
             svnUrl,
             repositoryRoot,
