@@ -69,7 +69,7 @@ class ScanFragment : CaptureFragment(), CodeUtils.AnalyzeCallback {
 
     private var surfaceCreated = false
 
-    override fun surfaceDestroyed(holder: SurfaceHolder?) {
+    override fun surfaceDestroyed(holder: SurfaceHolder) {
         super.surfaceDestroyed(holder)
         surfaceCreated = false
     }
@@ -82,7 +82,7 @@ class ScanFragment : CaptureFragment(), CodeUtils.AnalyzeCallback {
 //        super.handleDecode(result, barcode)
 //    }
 
-    override fun surfaceCreated(holder: SurfaceHolder?) {
+    override fun surfaceCreated(holder: SurfaceHolder) {
         super.surfaceCreated(holder)
         if (!surfaceCreated) {
             scanSurfaceView()
@@ -168,20 +168,7 @@ class ScanFragment : CaptureFragment(), CodeUtils.AnalyzeCallback {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        twaLauncher.launch(builder, null, null)
-//        if (connected) {
-//            // custom tabs 打开
-//            val customTabsIntent = CustomTabsIntent.Builder()
-//                .setShowTitle(true)
-//                .addDefaultShareMenuItem()
-//                .setToolbarColor(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
-//                .build()
-//            customTabsIntent.launchUrl(requireContext(), uri)
-//        } else {
-//            val intent = Intent(Intent.ACTION_VIEW, uri)
-//                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//            startActivity(Intent.createChooser(intent, "选择浏览器打开"))
-//        }
+        twaLauncher.launch(builder, null, null, null, null)
 
         val navController = findNavController()
         navController.navigateUp()// 扫描页弹栈

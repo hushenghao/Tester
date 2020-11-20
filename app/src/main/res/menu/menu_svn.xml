@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_svn_to_svn_config"
+        android:orderInCategory="100"
+        android:title="@string/svn_config"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/group_sort"
+        android:title="排序方式"
+        app:showAsAction="never">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/sort_name_asc"
+                    android:title="名称升序" />
+                <item
+                    android:id="@+id/sort_name_des"
+                    android:title="名称降序" />
+                <item
+                    android:id="@+id/sort_data_asc"
+                    android:title="时间升序" />
+                <item
+                    android:id="@+id/sort_data_des"
+                    android:title="时间降序" />
+            </group>
+        </menu>
+    </item>
+    <item
+        android:id="@+id/action_clear_dir"
+        android:orderInCategory="100"
+        android:title="清空下载文件"
+        app:showAsAction="never" />
+</menu>

@@ -23,3 +23,9 @@
 -keep class androidx.browser.trusted.TrustedWebActivityIntentBuilder { *; }
 -keep class com.uuzuche.lib_zxing.camera.CameraManager { *; }
 -keep class com.uuzuche.lib_zxing.camera.CameraConfigurationManager { *; }
+
+# baidu sdk
+-keep class com.baidu.** {*;}
+-keep class vi.com.** {*;}
+-keep class com.baidu.vi.** {*;}
+-dontwarn com.baidu.**

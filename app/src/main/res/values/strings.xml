@@ -11,4 +11,31 @@
 
     <string name="svn_config">SVN配置</string>
 
+    <string name="menu_mock">模拟定位</string>
+    <string name="menu_favorite">位置收藏</string>
+    <string name="tip_mock_location_tip">模拟位置开启，定位可能不准确</string>
+    <string name="text_add_favorite">添加收藏</string>
+    <string name="text_location_ing">定位中...</string>
+    <string name="tip_mock_closed">未选择模拟位置信息应用</string>
+    <string name="tip_location_undfined">未选择坐标</string>
+    <string name="text_location_success">定位成功，点击重新定位</string>
+    <string name="text_location_error">定位失败</string>
+    <string name="notify_content">运行中...</string>
+    <string name="notify_title">模拟位置服务</string>
+    <string name="action_stop">停止</string>
+    <string name="notify_group_name">模拟位置服务</string>
+    <string name="tip_open_devmode_error">打开开发者选项失败，请手动打开</string>
+    <string name="dialog_title_edit_favorite">编辑</string>
+    <string name="dialog_title_rename_favorite">重命名</string>
+    <string name="dialog_title_del_favorite">删除</string>
+    <string name="dialog_msg_del_favorite">确定删除？</string>
+    <string name="tip_not_empty">输入内容不可为空</string>
+    <string name="tip_location_disable">未开启定位设置</string>
+    <string name="tip_open_location_error">打开定位设置页面失败，请手动打开</string>
+
+    <string-array name="edit_favorite_array">
+        <item>重命名</item>
+        <item>删除</item>
+    </string-array>
+
 </resources>

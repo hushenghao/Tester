@@ -44,4 +44,20 @@
             app:uri="http://dede.tester/main/scan" />
     </fragment>
 
+    <fragment
+        android:id="@+id/nav_mock"
+        android:name="com.dede.tester.ui.mock.MockFragment"
+        android:label="@string/menu_mock"
+        tools:layout="@layout/fragment_mock">
+        <deepLink
+            android:id="@+id/deeplink_mock"
+            app:uri="http://dede.tester/main/mock" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_favorite"
+        android:name="com.dede.tester.ui.favorite.FavoriteFragment"
+        android:label="@string/menu_favorite"
+        tools:layout="@layout/fragment_favorite" />
+
 </navigation>
